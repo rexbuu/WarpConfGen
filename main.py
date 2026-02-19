@@ -482,18 +482,13 @@ def render_page(candidate_results, output=None, error_text="", mode="auto", sele
     if sync_error:
         sync_error_html = f"<div style='margin-top:8px;color:#991b1b;font-size:13px'><strong>Read status:</strong> {sync_error}</div>"
 
-    total_gen_display = int(stats.get("webhook_received_upto_cutoff", 0))
-    gen_success_display = int(stats.get("webhook_received_upto_cutoff", 0))
-    gen_failed_display = int(stats.get("webhook_failed", 0))
+    total_gen_display = int(stats.get("webhook_success", 0)) + int(stats.get("webhook_failed", 0))
 
     stats_html = f"""
     <section style="margin-top:16px;padding:14px;border-radius:12px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.55)">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
         <div style="display:flex;gap:14px;flex-wrap:wrap">
-                    <span><strong>Total Gen:</strong> {total_gen_display}</span>
-                    <span><strong>Gen success:</strong> {gen_success_display}</span>
-                    <span><strong>Gen failed:</strong> {gen_failed_display}</span>
-                    <span><strong>Webhook read (≤ {WEBHOOK_CUTOFF_DATE}):</strong> {stats['webhook_received_upto_cutoff']}</span>
+                                        <span><strong>Total Gen:</strong> {total_gen_display}</span>
         </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">{tracking_status_html}{webhook_status_html}</div>
       </div>
