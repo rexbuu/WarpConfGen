@@ -1,94 +1,75 @@
 # WarpConfGen
 
-FastAPI web app to generate Cloudflare WARP WireGuard configs.
+Modern FastAPI web app to generate Cloudflare WARP WireGuard configs with a premium UI and Myanmar language support.
 
 ## Features
 
-- Generate WireGuard key pair and registration payload
-- Keep private key material out of UI output (no `wireguard://` URI display)
-- Generate downloadable `.conf`
-- Generate downloadable QR `.png`
-- Save generation history in each user's browser local storage (history can re-download the generated `.conf` and view/download the QR)
-- Send webhook notification when a key is generated (server tracks generation success/failure counts)
-- Endpoint selection modes:
-  - Auto (first reachable / fallback candidate)
-  - Select from probed list
-  - Custom IP
-- Configurable endpoint port (default: `500`)
-- Built-in IP probe table
+- **Premium UI**: Glassmorphism design, warm color palette, and smooth micro-interactions.
+- **Mobile Friendly**: Fully responsive design for both desktop and mobile.
+- **Bilingual**: Friendly Myanmar language support with a language toggle (EN/MM).
+- **Easy Instructions**: Built-in "How to Use" and "How to Connect" guides.
+- **Supabase Integration**: Global generation counter stored in Supabase.
+- **Secure**: Generates WireGuard key pairs and registrations locally.
+- **Export Options**: Downloadable `.conf` and QR `.png` for easy import.
+- **Endpoint Selection**:
+  - Auto Select (High speed)
+  - Choose from List
+  - Custom Endpoint IP
 
 ## Tech Stack
 
-- Python 3.12+
-- FastAPI
-- Uvicorn
-- Requests
-- PyNaCl
-- qrcode + Pillow
+- **Backend**: Python 3.12+, FastAPI, Uvicorn, Requests
+- **Security**: PyNaCl (for key generation)
+- **UI**: Vanilla HTML/CSS/JS, Lucide Icons, Google Fonts (Outfit, DM Mono)
+- **Database**: Supabase (for global stats)
 
 ## Local Run
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
+cp .env.example .env
+python main.py
 ```
 
 Open: `http://127.0.0.1:8000`
 
-### Environment
+## Supabase Setup (Optional)
 
-Use `.env` (auto-loaded) to configure runtime options:
+To enable the global generation counter:
+
+1. Create a project on [Supabase](https://supabase.com).
+2. Create a table named `stats`:
+   - `id`: int (Primary Key, set to 1)
+   - `total_generations`: int (Default: 0)
+3. Create a Postgres function for atomic increments:
+   ```sql
+   CREATE OR REPLACE FUNCTION increment_gen_count()
+   RETURNS void AS $$
+   BEGIN
+     UPDATE stats
+     SET total_generations = total_generations + 1
+     WHERE id = 1;
+   END;
+   $$ LANGUAGE plpgsql;
+   ```
+4. Add your `SUPABASE_URL` and `SUPABASE_KEY` to the `.env` file.
+
+## Environment Variables
 
 ```dotenv
-WEBHOOK_URL=https://webhook.site/your-id
-WEBHOOK_READ_URL=
-WEBHOOK_CUTOFF_DATE=2026-02-25
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
 STATS_FILE=warpgen_stats.json
 ```
 
-- `WEBHOOK_URL` empty/unset = webhook notifications disabled
-- `WEBHOOK_READ_URL` optional explicit JSON endpoint to read webhook requests
-- `WEBHOOK_CUTOFF_DATE` counts webhook-read results only up to this date (inclusive)
-- `STATS_FILE` controls where generation success/fail counters are stored
-
 ## Vercel Deploy
 
-This repo is configured for Vercel serverless Python runtime.
-
-### Included files
-
-- `vercel.json`
-- `api/index.py` (exports `app` from `main.py`)
-
-### Deploy
+This project is ready for Vercel deployment:
 
 ```bash
-npm i -g vercel
-vercel login
-vercel
 vercel --prod
 ```
 
-## Notes
+## License
 
-- Webhook URL can be customized with `WEBHOOK_URL` environment variable (leave empty to disable). See `.env.example` for an example.
-- Generation metrics shown in UI:
-  - `Total Gen`
-  - `Gen success` (webhook HTTP 2xx)
-  - `Gen failed` (webhook non-2xx or request error)
-- Local history is browser-based and supports re-download of `.conf` and view/download of QR.
-- The app includes endpoint probing. In some serverless environments UDP probing may be restricted; auto mode falls back to first available candidate.
-- This project is MIT licensed and intended for educational purposes.
-
-## Project Structure
-
-```text
-api/
-  index.py
-main.py
-requirements.txt
-vercel.json
-README.md
-.env.example
-```
+MIT Licensed. This project is provided for educational purposes.
