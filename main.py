@@ -417,7 +417,23 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
             margin-top: 2px;
         }}
 
-        footer {{ margin-top: auto; padding: 40px 0; text-align: center; border-top: var(--border-glass); }}
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .footer-link:hover {
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        footer { margin-top: auto; padding: 40px 0; text-align: center; border-top: var(--border-glass); }
+
         
         .hidden {{ display: none; }}
 
@@ -557,8 +573,19 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
 
         <footer>
             <p>&copy; 2026 WarpGen. Made for educational purposes.</p>
-            <div style="display:flex; justify-content:center; gap:16px; margin-top:12px;">
-                <a href="https://github.com/devtint/WarpConfGen" target="_blank" style="color:var(--text-secondary)"><i data-lucide="github"></i></a>
+            <div style="display:flex; justify-content:center; align-items:center; gap:24px; margin-top:16px; flex-wrap:wrap;">
+                <a href="https://t.me/BadCodeWriter" target="_blank" class="footer-link">
+                    <i data-lucide="message-circle"></i>
+                    <span data-t="f-contact">Contact</span>
+                </a>
+                <a href="https://t.me/h3lpw1thvpn" target="_blank" class="footer-link">
+                    <i data-lucide="users"></i>
+                    <span data-t="f-group">Telegram Group</span>
+                </a>
+                <a href="https://github.com/devtint/WarpConfGen" target="_blank" class="footer-link">
+                    <i data-lucide="github"></i>
+                    <span data-t="f-github">GitHub</span>
+                </a>
             </div>
         </footer>
     </div>
@@ -591,7 +618,10 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
                 'c-mob': 'Android & iOS',
                 'c-mob-d': "Download 'WireGuard' from Store. Tap (+) and 'Scan from QR code'.",
                 'c-pc': 'Windows & Mac',
-                'c-pc-d': "Install 'WireGuard' and 'Add Tunnel' -> Import from file (.conf)."
+                'c-pc-d': "Install 'WireGuard' and 'Add Tunnel' -> Import from file (.conf).",
+                'f-contact': 'Contact',
+                'f-group': 'Telegram Group',
+                'f-github': 'GitHub'
             }},
             mm: {{
                 'title': 'မြန်ဆန်ပြီး လုံခြုံသော',
@@ -617,7 +647,10 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
                 'c-mob': 'ဖုန်း (Android & iOS)',
                 'c-mob-d': "Play Store သို့မဟုတ် App Store မှ 'WireGuard' ကို ဒေါင်းပါ။ (+) ကိုနှိပ်ပြီး 'Scan from QR code' ကိုရွေးပါ။",
                 'c-pc': 'ကွန်ပျူတာ (Windows & Mac)',
-                'c-pc-d': "'WireGuard' ကိုသွင်းပါ။ 'Add Tunnel' -> 'Import from file' မှ ဒေါင်းလုဒ်လုပ်ထားသော .conf ဖိုင်ကို ရွေးပေးပါ။"
+                'c-pc-d': "'WireGuard' ကိုသွင်းပါ။ 'Add Tunnel' -> 'Import from file' မှ ဒေါင်းလုဒ်လုပ်ထားသော .conf ဖိုင်ကို ရွေးပေးပါ။",
+                'f-contact': 'ဆက်သွယ်ရန်',
+                'f-group': 'တယ်လီဂရမ်အုပ်စု',
+                'f-github': 'GitHub'
             }}
         }};
 
