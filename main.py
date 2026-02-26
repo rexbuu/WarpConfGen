@@ -417,7 +417,7 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
             margin-top: 2px;
         }}
 
-        .footer-link {
+        .footer-link {{
             display: flex;
             align-items: center;
             gap: 8px;
@@ -426,13 +426,13 @@ def get_html(content="", mode="auto", selected_ip="", custom_ip="", port=500):
             font-weight: 600;
             font-size: 14px;
             transition: all 0.2s ease;
-        }
-        .footer-link:hover {
+        }}
+        .footer-link:hover {{
             color: var(--accent);
             transform: translateY(-1px);
-        }
+        }}
 
-        footer { margin-top: auto; padding: 40px 0; text-align: center; border-top: var(--border-glass); }
+        footer {{ margin-top: auto; padding: 40px 0; text-align: center; border-top: var(--border-glass); }}
 
         
         .hidden {{ display: none; }}
