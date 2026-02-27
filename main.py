@@ -910,7 +910,7 @@ def get_html(mode="auto", selected_ip="", custom_ip="", port=500):
                                 <img src="data:image/png;base64,${{data.qr}}" alt="QR Config">
                             </div>
                             <div class="btn-group">
-                                <a href="data:text/plain;charset=utf-8,${{encodeURIComponent(data.conf)}}" download="warp-${{Math.floor(Date.now()/1000)}}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
+                                <a href="data:application/octet-stream;charset=utf-8,${{encodeURIComponent(data.conf)}}" download="warp-${{Math.floor(Date.now()/1000)}}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
                                     <i data-lucide="download"></i> <span data-t="btn-download">${{translations[currentLang]['btn-download']}}</span>
                                 </a>
                             </div>
