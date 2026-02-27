@@ -32,3 +32,6 @@ Thumbs.db
 warp-*.conf
 warp-*.png
 warpgen_stats.json
+local_tools/*
+
+
