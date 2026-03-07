@@ -1,7 +1,10 @@
 fastapi
 uvicorn
-requests
+httpx
 PyNaCl
 qrcode[pil]
 python-multipart
 python-dotenv
+pydantic-settings
+jinja2
+structlog
