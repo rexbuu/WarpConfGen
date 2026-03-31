@@ -29,21 +29,40 @@ def get_client_ip(request: Request) -> str:
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Sliding-window rate limiter by client IP."""
 
-    PROTECTED_PATHS = {"/", "/api/generate", "/api/scan"}
+    # Path-specific rate limits (requests per window)
+    LIMITS = {
+        "/": 15,
+        "/api/generate": 15,
+        "/api/scan": 15,
+        "/api/v2sub": 100,  # Higher limit for subscription syncs
+    }
 
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
-        if request.url.path not in self.PROTECTED_PATHS:
+        path = request.url.path
+        
+        # Check for exact match or prefix for /api/v2sub
+        target_path = None
+        if path in self.LIMITS:
+            target_path = path
+        elif path.startswith("/api/v2sub/"):
+            target_path = "/api/v2sub"
+
+        if not target_path:
             return await call_next(request)
 
         client_ip = get_client_ip(request)
         now = time.time()
+        limit = self.LIMITS[target_path]
 
         with _rate_limit_lock:
-            bucket = _rate_limit_buckets[client_ip]
+            # Bucket per (client_ip, path) to allow separate limits
+            bucket_key = f"{client_ip}:{target_path}"
+            bucket = _rate_limit_buckets[bucket_key]
             while bucket and bucket[0] <= now - settings.rate_limit_window_seconds:
                 bucket.popleft()
-            if len(bucket) >= settings.rate_limit_max_requests:
-                logger.warning("rate_limit_exceeded", client_ip=client_ip)
+            
+            if len(bucket) >= limit:
+                logger.warning("rate_limit_exceeded", client_ip=client_ip, path=path)
                 return PlainTextResponse("Too many requests", status_code=429)
             bucket.append(now)
 

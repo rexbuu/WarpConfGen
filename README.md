@@ -21,7 +21,9 @@ Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configuration
 - **Download .conf** — Ready-to-import WireGuard configuration file
 - **Port Selection** — Dropdown with common WARP ports (500, 2408, 1701, 4500)
 - **Rate Limiting** — 15 requests per 60-second window per IP
-- **Supabase Stats** — Global generation counter with local JSON fallback
+- **V2BOX Subscription** — Permanent JIT (Just-In-Time) generation link for V2BOX, Shadowrocket, and v2rayN
+- **High Rate Limit** — Dedicated higher quota (100/min) for subscription syncs
+- **Supabase Persistence** — Atomic storage of subscription nodes via UUID-based links
 - **Structured Logging** — JSON-structured logs via `structlog` (no more silent errors)
 - **Async I/O** — Non-blocking Cloudflare API calls via `httpx`
 
@@ -40,9 +42,10 @@ WarpGen/
 │   ├── services/
 │   │   ├── warp.py              # Cloudflare registration (async httpx)
 │   │   ├── scanner.py           # UDP probing with latency measurement
-│   │   └── stats.py             # Local + Supabase stats tracking
+│   │   ├── stats.py             # Local + Supabase stats tracking
+│   │   └── subscription.py      # JIT v2box subscription management
 │   └── middleware/
-│       └── rate_limit.py        # Sliding-window rate limiter
+│       └── rate_limit.py        # Path-specific sliding-window limiter
 ├── templates/
 │   └── index.html               # Jinja2 template (HTML/CSS/JS)
 ├── api/
@@ -144,6 +147,25 @@ BEGIN
   WHERE id = 1;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Create subscriptions table
+CREATE TABLE IF NOT EXISTS v2_subscriptions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    config_uri text NOT NULL,
+    updated_at timestamptz DEFAULT now()
+);
+
+-- Create atomic refresh function
+CREATE OR REPLACE FUNCTION update_v2_subscription(p_id uuid, p_uri text)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO v2_subscriptions (id, config_uri, updated_at)
+    VALUES (p_id, p_uri, now())
+    ON CONFLICT (id) DO UPDATE
+    SET config_uri = EXCLUDED.config_uri,
+        updated_at = EXCLUDED.updated_at;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
 3. Add your `SUPABASE_URL` and `SUPABASE_KEY` to `.env` (local) or Vercel env vars (production).
@@ -155,7 +177,8 @@ $$ LANGUAGE plpgsql;
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/` | Serves the WarpGen web UI |
-| `POST` | `/api/generate` | Generate a WARP config (form data: `mode`, `selected_ip`, `custom_ip`, `port`) |
+| `POST` | `/api/generate` | Generate a WARP config (form data: `mode`, `port`, etc) |
+| `GET` | `/api/v2sub/{sub_id}` | **Dynamic Feed:** Generates & serves fresh Warp config for clients |
 | `GET` | `/api/scan?port=500` | Scan for working WARP IPs with latency |
 
 ### Example: Generate via API

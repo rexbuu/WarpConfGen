@@ -757,6 +757,33 @@
                 </form>
             </section>
 
+            <section class="card" id="subscription-card" style="border: 2px solid var(--accent-light);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="rss" style="color:var(--accent)"></i>
+                        <span data-t="v2_title">V2BOX Subscription</span>
+                    </h3>
+                    <div id="sub-badge" class="stats-badge" style="margin:0; background:rgba(76,175,125,0.1); color:#059669;">
+                        <i data-lucide="check" size="14"></i> Ready
+                    </div>
+                </div>
+                <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;" data-t="v2_desc">
+                    Get a permanent subscription link for V2BOX/Shadowrocket. Simply clicking "Update" inside your app will automatically generate a fresh Warp config.
+                </p>
+                
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="v2_sub_url" readonly style="flex:1; background:rgba(0,0,0,0.03); cursor:default; font-family:'DM Mono', monospace; font-size:13px;" placeholder="Generating link...">
+                    <button class="btn-outline" style="white-space:nowrap; padding:0 16px; margin:0;" onclick="copySubUrl()" title="Copy Link">
+                        <i data-lucide="copy" size="18"></i>
+                    </button>
+                    <button class="btn-outline" style="margin:0; padding:0 16px;" onclick="viewCurrentSub()" title="View Feed">
+                        <i data-lucide="external-link" size="18"></i>
+                    </button>
+                </div>
+
+                <button id="refreshSubBtn" class="hidden" onclick="refreshSubscription()"></button>
+            </section>
+
             <div id="result-container" class="hidden"></div>
 
             <!-- Config History -->
@@ -902,7 +929,12 @@
                 'history-title': 'Recent Configs',
                 'history-empty': 'No saved configs yet.',
                 'history-view': 'View',
-                'history-delete': 'Delete'
+                'history-delete': 'Delete',
+                'v2_title': 'V2BOX Subscription',
+                'v2_desc': 'Get a permanent subscription link for V2BOX, Shadowrocket, or v2rayN. Simply clicking "Update" inside your app will automatically generate a fresh Warp config — no website visit required.',
+                'v2_url_label': 'Permanent Subscription URL',
+                'v2_btn_update': 'Sync & Refresh Config',
+                'v2_syncing': 'Syncing with Cloudflare...'
             },
             mm: {
                 'title': 'မြန်ဆန်ပြီး လုံခြုံသော',
@@ -950,7 +982,12 @@
                 'history-title': 'မကြာသေးမီ Config များ',
                 'history-empty': 'သိမ်းထားသော config မရှိသေးပါ။',
                 'history-view': 'ကြည့်ရှုရန်',
-                'history-delete': 'ဖျက်ရန်'
+                'history-delete': 'ဖျက်ရန်',
+                'v2_title': 'V2BOX Subscription',
+                'v2_desc': 'V2BOX, Shadowrocket တို့တွင် အမြဲတမ်းအသုံးပြုနိုင်မည့် link ကို ရယူပါ။ Website သို့ လာစရာမလိုဘဲ သင့် App ထဲတွင် "Update" နှိပ်ရုံဖြင့် config အသစ်များကို အလိုအလျောက် အသစ်လဲလှယ်ပေးမည်ဖြစ်သည်။',
+                'v2_url_label': 'အမြဲတမ်းအသုံးပြုရန် Subscription Link',
+                'v2_btn_update': 'Config အသစ်လဲမည်',
+                'v2_syncing': 'Cloudflare တွင် အသစ်လဲနေပါသည်...'
             }
         };
 
@@ -1163,6 +1200,120 @@
 
         // Init history on page load
         renderHistory();
+
+        // Subscription Manager
+        const SUB_ID_KEY = 'warpgen_sub_id';
+        let currentSubId = localStorage.getItem(SUB_ID_KEY);
+
+        function initSubscriptionUI() {
+            // Auto-generate if missing
+            if (!currentSubId || currentSubId === 'undefined') {
+                currentSubId = 'wg-' + Math.random().toString(36).substring(2, 10);
+                localStorage.setItem(SUB_ID_KEY, currentSubId);
+            }
+            
+            const url = window.location.origin + '/api/v2sub/' + currentSubId;
+            document.getElementById('v2_sub_url').value = url;
+            document.getElementById('sub-badge').innerHTML = '<i data-lucide="check" size="14"></i> Active';
+            lucide.createIcons();
+        }
+
+        async function refreshSubscription() {
+            const btn = document.getElementById('refreshSubBtn');
+            const lang = localStorage.getItem('pref_lang') || 'en';
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> <span>${translations[lang]['v2_syncing']}</span>`;
+            lucide.createIcons();
+
+            try {
+                const formData = new FormData();
+                if (currentSubId && currentSubId !== 'undefined') {
+                    formData.append('sub_id', currentSubId);
+                }
+
+                const resp = await fetch('/api/v2sub/update', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await resp.json();
+
+                if (data.error) throw new Error(data.error);
+
+                if (data.sub_id) {
+                    currentSubId = data.sub_id;
+                    localStorage.setItem(SUB_ID_KEY, currentSubId);
+                    initSubscriptionUI();
+                    showToast('Subscription Updated!');
+                    
+                    // Also show the result in the main container
+                    if (data.config) displayResult(data.config);
+                } else {
+                    throw new Error("Server did not return a valid sub_id");
+                }
+            } catch (err) {
+                alert("Subscription Sync Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        }
+
+        function copySubUrl() {
+            const el = document.getElementById('v2_sub_url');
+            if (el.value.startsWith('http')) {
+                navigator.clipboard.writeText(el.value);
+                showToast('Link Copied!');
+            } else {
+                showToast('Please Sync first');
+            }
+        }
+
+        function viewCurrentSub() {
+            if (currentSubId) {
+                window.open('/api/v2sub/' + currentSubId, '_blank');
+            } else {
+                showToast('Please Sync first');
+            }
+        }
+
+        function displayResult(data) {
+            const resultContainer = document.getElementById('result-container');
+            const currentLang = localStorage.getItem('pref_lang') || 'en';
+            
+            // Save to history
+            saveToHistory(data.conf, data.endpoint);
+
+            resultContainer.innerHTML = `
+                <section class="output-section">
+                    <div class="card">
+                        <h2 style="margin-top:0"><i data-lucide="check-circle" style="color:#059669"></i> <span data-t="success-title">${translations[currentLang]['success-title']}</span></h2>
+                        <div class="qr-card">
+                            <img src="data:image/png;base64,${data.qr}" alt="QR Config">
+                        </div>
+                        <div class="btn-group">
+                            <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(data.conf)}" download="warp-${Math.floor(Date.now() / 1000)}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
+                                <i data-lucide="download"></i> <span data-t="btn-download">${translations[currentLang]['btn-download']}</span>
+                            </a>
+                            <button class="btn-outline" onclick="navigator.clipboard.writeText(${JSON.stringify(data.conf)}); showToast('${translations[currentLang]['copied']}')">
+                                <i data-lucide="copy" size="16"></i> <span data-t="btn-copy">${translations[currentLang]['btn-copy']}</span>
+                            </button>
+                        </div>
+
+                        <div class="config-code">
+                            <pre>${data.conf}</pre>
+                        </div>
+                    </div>
+                </section>
+            `;
+            resultContainer.classList.remove('hidden');
+            lucide.createIcons();
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        initSubscriptionUI();
 
         // AJAX Generation logic
         document.getElementById('genForm').addEventListener('submit', async function (e) {

@@ -16,11 +16,13 @@ logger = structlog.get_logger()
 
 CLOUDFLARE_REG_URL = "https://api.cloudflareclient.com/v0a1925/reg"
 
+import urllib.parse
 
 class WarpResult(TypedDict):
     conf: str
     qr: str
     endpoint: str
+    uri: str
 
 
 async def generate_warp(ip: str, port: int) -> WarpResult:
@@ -50,11 +52,12 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     addr = data["config"]["interface"]["addresses"]
     v4 = addr.get("v4", "172.16.0.2/32")
     v6 = addr.get("v6", "")
+    address_str = f"{v4}{', ' + v6 if v6 else ''}"
 
     conf = (
         f"[Interface]\n"
         f"PrivateKey = {priv_b64}\n"
-        f"Address = {v4}{', ' + v6 if v6 else ''}\n"
+        f"Address = {address_str}\n"
         f"DNS = 1.1.1.1, 1.0.0.1\n\n"
         f"[Peer]\n"
         f"PublicKey = {settings.peer_public_key}\n"
@@ -68,5 +71,14 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     qr_img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
+    uri = (
+        f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
+        f"@{ip}:{port}"
+        f"?publickey={urllib.parse.quote(settings.peer_public_key, safe='')}"
+        f"&address={urllib.parse.quote(address_str, safe='')}"
+        f"&mtu=1280"
+        f"#{urllib.parse.quote(f'WarpGen {ip}', safe='')}"
+    )
+
     logger.info("warp_registration_success", endpoint=f"{ip}:{port}")
-    return WarpResult(conf=conf, qr=qr_b64, endpoint=f"{ip}:{port}")
+    return WarpResult(conf=conf, qr=qr_b64, endpoint=f"{ip}:{port}", uri=uri)
