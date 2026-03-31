@@ -76,17 +76,23 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     qr_img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
-    # V2BOX subscription parser URL-decodes the URI after Base64 decode.
-    # If we use %2B, V2BOX decodes it to '+', then interprets '+' as space.
-    # Solution: Build URI with raw values. Only encode the private key (userinfo).
-    CF_PEER_KEY = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    # V2BOX double-decodes subscription URIs:
+    #   Pass 1 (URL-decode): %252B -> %2B
+    #   Pass 2 (form-urlencoded parse): %2B -> +
+    # So we must double-encode special chars in query param values.
+    CF_PEER_KEY_DOUBLE = "bmXOC%252BF1FxEMF9dyiK2H5%252F1SUtzH0JuVo51h2wPfgyo%253D"
+    
+    # Double-encode the private key for query-safe usage isn't needed since
+    # private key is in userinfo (before @) which V2BOX handles correctly.
+    # Only query param values need double-encoding.
+    addr_double = f"{v4_bare}%2C{v6_bare}" if v6_bare else v4_bare
     
     uri = (
         f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
         f"@{ip}:{port}"
-        f"?address={v4_bare},{v6_bare}"
-        f"&reserved=0,0,0"
-        f"&publickey={CF_PEER_KEY}"
+        f"?address={addr_double}"
+        f"&reserved=0%2C0%2C0"
+        f"&publickey={CF_PEER_KEY_DOUBLE}"
         f"&mtu=1420"
         f"#WarpGenSub"
     )
