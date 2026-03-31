@@ -10,11 +10,24 @@ from fastapi.templating import Jinja2Templates
 from app.config import settings
 from app.services.stats import get_local_count, get_supabase_stats
 
-# Resolve template dir — works for both local dev and Vercel serverless
-_file_based = Path(__file__).resolve().parent.parent.parent / "templates"
-_cwd_based = Path.cwd() / "templates"
-TEMPLATE_DIR = _file_based if _file_based.is_dir() else _cwd_based
-templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
+import os
+from pathlib import Path
+
+# Vercel and local path resolution
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+possible_dirs = [
+    BASE_DIR / "templates",
+    Path.cwd() / "templates",
+    Path.cwd() / "api" / "templates",
+]
+
+TEMPLATE_DIR = str(BASE_DIR / "templates")
+for d in possible_dirs:
+    if d.is_dir():
+        TEMPLATE_DIR = str(d)
+        break
+
+templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
 router = APIRouter()
 
