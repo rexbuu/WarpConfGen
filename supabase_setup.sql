@@ -26,13 +26,13 @@ $$ LANGUAGE plpgsql;
 -- 4. Create the v2_subscriptions table for personal links
 -- This stores the latest generated config for a specific ID.
 CREATE TABLE IF NOT EXISTS v2_subscriptions (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id text PRIMARY KEY,
     config_uri text NOT NULL,
     updated_at timestamptz DEFAULT now()
 );
 
 -- 5. Create a function to update or create a subscription atomically
-CREATE OR REPLACE FUNCTION update_v2_subscription(p_id uuid, p_uri text)
+CREATE OR REPLACE FUNCTION update_v2_subscription(p_id text, p_uri text)
 RETURNS void AS $$
 BEGIN
     INSERT INTO v2_subscriptions (id, config_uri, updated_at)

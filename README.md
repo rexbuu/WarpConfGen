@@ -150,13 +150,13 @@ $$ LANGUAGE plpgsql;
 
 -- Create subscriptions table
 CREATE TABLE IF NOT EXISTS v2_subscriptions (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id text PRIMARY KEY,
     config_uri text NOT NULL,
     updated_at timestamptz DEFAULT now()
 );
 
 -- Create atomic refresh function
-CREATE OR REPLACE FUNCTION update_v2_subscription(p_id uuid, p_uri text)
+CREATE OR REPLACE FUNCTION update_v2_subscription(p_id text, p_uri text)
 RETURNS void AS $$
 BEGIN
     INSERT INTO v2_subscriptions (id, config_uri, updated_at)
