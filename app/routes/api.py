@@ -47,49 +47,30 @@ async def api_sub(port: int = 500):
 from app.services.subscription import get_v2_subscription, update_v2_subscription
 import uuid
 
-from datetime import datetime, timedelta
 
-# In-memory cooldown tracker to prevent multiple Cloudflare registrations within seconds for the same sub_id
-_sub_last_refresh: dict[str, datetime] = {}
 
 @router.get("/v2sub/{sub_id}", response_class=PlainTextResponse)
 async def api_v2_sub(sub_id: str):
-    """Dynamic V2BOX subscription: Generates NEW config on every sync, then stores/serves it."""
+    """Dynamic V2BOX subscription: Always generates a fresh config."""
     try:
-        now = datetime.now()
-        # Cooldown of 5 seconds per sub_id to avoid Cloudflare spam on accidental multiple taps
-        last_time = _sub_last_refresh.get(sub_id)
-        
-        if last_time and now - last_time < timedelta(seconds=5):
-            # Just serve the stored one from DB if hit again within 5 seconds
-            stored_uri = await get_v2_subscription(sub_id)
-            if stored_uri:
-                return base64.b64encode(stored_uri.encode()).decode()
-
-        # 1. Generate NEW Warp Config
         target_ip = settings.known_warp_ips[0]
         port = 500
-        logger.info("v2_auto_refresh_via_get", sub_id=sub_id)
+        logger.info("v2_sub_requested", sub_id=sub_id)
         result = await generate_warp(target_ip, port)
         await increment_stats()
         
-        # 2. Save/Update in DB for this sub_id
+        # Save to DB for reference
         await update_v2_subscription(sub_id, result["uri"])
-        
-        # 3. Update cooldown
-        _sub_last_refresh[sub_id] = now
 
-        # 4. Return Base64 encoded URI for V2BOX/Shadowrocket
-        return base64.b64encode(result["uri"].encode()).decode()
+        # Return Base64 encoded URI for V2BOX/Shadowrocket
+        return base64.b64encode(result["uri"].encode("utf-8")).decode("utf-8")
     except Exception as exc:
-        logger.error("v2_subscription_auto_refresh_failed", sub_id=sub_id, error=str(exc))
-        # Fallback to stored if possible
-        try:
-            stored_uri = await get_v2_subscription(sub_id)
-            if stored_uri:
-                return base64.b64encode(stored_uri.encode()).decode()
-        except: pass
-        return base64.b64encode(f"error: {str(exc)}".encode()).decode()
+        logger.error("v2_sub_failed", sub_id=sub_id, error=str(exc))
+        return PlainTextResponse(
+            content=base64.b64encode(f"error: {str(exc)}".encode()).decode(),
+            status_code=500,
+        )
+
 
 
 @router.post("/v2sub/update")
