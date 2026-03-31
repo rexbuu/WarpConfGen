@@ -54,6 +54,11 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     v6 = addr.get("v6", "")
     address_str = f"{v4}{', ' + v6 if v6 else ''}"
 
+    # Bare IP format for URI schemes (strip /32 and /128 to fix Start Service Failure)
+    v4_bare = v4.split("/")[0]
+    v6_bare = v6.split("/")[0] if v6 else ""
+    address_str_bare = f"{v4_bare}{',' + v6_bare if v6_bare else ''}"
+
     conf = (
         f"[Interface]\n"
         f"PrivateKey = {priv_b64}\n"
@@ -78,7 +83,7 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
         f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
         f"@{ip}:{port}"
         f"?publickey={urllib.parse.quote(CF_PEER_PUBLIC_KEY, safe='')}"
-        f"&address={urllib.parse.quote(address_str, safe='')}"
+        f"&address={urllib.parse.quote(address_str_bare, safe='')}"
         f"&reserved=0,0,0"
         f"&mtu=1420"
         f"#{urllib.parse.quote(f'WarpGen {ip}', safe='')}"
