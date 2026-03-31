@@ -26,6 +26,7 @@ def create_app() -> FastAPI:
     
     @application.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
+        logger = structlog.get_logger()
         logger.error("unhandled_exception", path=request.url.path, error=str(exc))
         return JSONResponse(
             status_code=500,
