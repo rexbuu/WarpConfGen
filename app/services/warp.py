@@ -76,13 +76,14 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     qr_img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
-    # Use the universal Cloudflare WARP peer public key directly for the URI to avoid environment corruption
-    CF_PEER_PUBLIC_KEY = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    # Use the universal Cloudflare WARP peer public key directly for the URI (fully manual encoded to prevent any corruption)
+    # Key: bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+    CF_PUBLIC_KEY_ENCODED = "bmXOC%2BF1FxEMF9dyiK2H5%2F1SUtzH0JuVo51h2wPfgyo%3D"
     
     uri = (
         f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
         f"@{ip}:{port}"
-        f"?publickey={urllib.parse.quote(CF_PEER_PUBLIC_KEY, safe='')}"
+        f"?publickey={CF_PUBLIC_KEY_ENCODED}"
         f"&address={urllib.parse.quote(address_str_bare, safe='')}"
         f"&reserved=0,0,0"
         f"&mtu=1420"
