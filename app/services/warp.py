@@ -71,12 +71,16 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     qr_img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
+    # Ensure the peer public key doesn't have accidental spaces and is properly encoded
+    peer_key = settings.peer_public_key.replace(" ", "+")
+    
     uri = (
         f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
         f"@{ip}:{port}"
-        f"?publickey={urllib.parse.quote(settings.peer_public_key, safe='')}"
+        f"?publickey={urllib.parse.quote(peer_key, safe='')}"
         f"&address={urllib.parse.quote(address_str, safe='')}"
-        f"&mtu=1280"
+        f"&reserved=0,0,0"
+        f"&mtu=1420"
         f"#{urllib.parse.quote(f'WarpGen {ip}', safe='')}"
     )
 
