@@ -83,11 +83,11 @@ async def generate_warp(ip: str, port: int) -> WarpResult:
     uri = (
         f"wireguard://{urllib.parse.quote(priv_b64, safe='')}"
         f"@{ip}:{port}"
-        f"?publickey={CF_PUBLIC_KEY_ENCODED}"
-        f"&address={urllib.parse.quote(address_str_bare, safe='')}"
-        f"&reserved=0,0,0"
+        f"?address={urllib.parse.quote(address_str_bare, safe='')}"
+        f"&reserved=0%2C0%2C0"
+        f"&publickey={CF_PUBLIC_KEY_ENCODED}"
         f"&mtu=1420"
-        f"#{urllib.parse.quote(f'WarpGen {ip}', safe='')}"
+        f"#WarpGenSub"
     )
 
     logger.info("warp_registration_success", endpoint=f"{ip}:{port}")
