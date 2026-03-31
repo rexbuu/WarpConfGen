@@ -782,6 +782,21 @@
                 </div>
 
                 <button id="refreshSubBtn" class="hidden" onclick="refreshSubscription()"></button>
+
+                <div style="margin-top:16px; padding:14px; background:rgba(232,168,56,0.06); border-radius:12px; border:1px dashed var(--accent-light);">
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px 0; display:flex; align-items:start; gap:6px;">
+                        <i data-lucide="info" size="15" style="flex-shrink:0; margin-top:2px; color:var(--accent);"></i>
+                        <span data-t="v2_note_auto">V2BOX auto-updates your config every time you open the app. Each update generates a brand new WARP identity.</span>
+                    </p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px 0; display:flex; align-items:start; gap:6px;">
+                        <i data-lucide="settings" size="15" style="flex-shrink:0; margin-top:2px; color:var(--accent);"></i>
+                        <span data-t="v2_note_disable">To keep the same config, disable auto-update in V2BOX: Settings → Subscription → Turn off "Auto Update".</span>
+                    </p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0; display:flex; align-items:start; gap:6px;">
+                        <i data-lucide="database" size="15" style="flex-shrink:0; margin-top:2px; color:var(--accent);"></i>
+                        <span data-t="v2_note_data">Showing "50 GB" is normal — it's Cloudflare's free WARP data quota. It auto-refreshes every time V2BOX updates your subscription.</span>
+                    </p>
+                </div>
             </section>
 
             <div id="result-container" class="hidden"></div>
@@ -934,7 +949,10 @@
                 'v2_desc': 'Get a permanent subscription link for V2BOX, Shadowrocket, or v2rayN. Simply clicking "Update" inside your app will automatically generate a fresh Warp config — no website visit required.',
                 'v2_url_label': 'Permanent Subscription URL',
                 'v2_btn_update': 'Sync & Refresh Config',
-                'v2_syncing': 'Syncing with Cloudflare...'
+                'v2_syncing': 'Syncing with Cloudflare...',
+                'v2_note_auto': 'V2BOX auto-updates your config every time you open the app. Each update generates a brand new WARP identity.',
+                'v2_note_disable': 'To keep the same config, disable auto-update in V2BOX: Settings → Subscription → Turn off "Auto Update".',
+                'v2_note_data': 'Showing "50 GB" is normal — it\'s Cloudflare\'s free WARP data quota. It auto-refreshes every time V2BOX updates your subscription.'
             },
             mm: {
                 'title': 'မြန်ဆန်ပြီး လုံခြုံသော',
@@ -987,7 +1005,10 @@
                 'v2_desc': 'V2BOX, Shadowrocket တို့တွင် အမြဲတမ်းအသုံးပြုနိုင်မည့် link ကို ရယူပါ။ Website သို့ လာစရာမလိုဘဲ သင့် App ထဲတွင် "Update" နှိပ်ရုံဖြင့် config အသစ်များကို အလိုအလျောက် အသစ်လဲလှယ်ပေးမည်ဖြစ်သည်။',
                 'v2_url_label': 'အမြဲတမ်းအသုံးပြုရန် Subscription Link',
                 'v2_btn_update': 'Config အသစ်လဲမည်',
-                'v2_syncing': 'Cloudflare တွင် အသစ်လဲနေပါသည်...'
+                'v2_syncing': 'Cloudflare တွင် အသစ်လဲနေပါသည်...',
+                'v2_note_auto': 'V2BOX သည် App ဖွင့်တိုင်း config ကို အလိုအလျောက် အသစ်လဲပေးပါသည်။ Update တိုင်း WARP identity အသစ်တစ်ခု ထုတ်ပေးပါသည်။',
+                'v2_note_disable': 'Config ကို ပြောင်းမလဲချင်ပါက V2BOX ထဲတွင် ပိတ်ထားနိုင်ပါသည်: Settings → Subscription → "Auto Update" ကို ပိတ်ပါ။',
+                'v2_note_data': '"50 GB" ပြနေတာ ပုံမှန်ပါ — Cloudflare ရဲ့ အခမဲ့ WARP data ပမာဏ ဖြစ်ပါတယ်။ V2BOX က subscription update လုပ်တိုင်း data အသစ် အလိုအလျောက် ပြန်ဖြည့်ပေးပါသည်။'
             }
         };
 

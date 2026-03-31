@@ -21,9 +21,9 @@ Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configuration
 - **Download .conf** — Ready-to-import WireGuard configuration file
 - **Port Selection** — Dropdown with common WARP ports (500, 2408, 1701, 4500)
 - **Rate Limiting** — 15 requests per 60-second window per IP
-- **V2BOX Subscription** — Permanent JIT (Just-In-Time) generation link for V2BOX, Shadowrocket, and v2rayN
+- **V2BOX Subscription** — Permanent JIT (Just-In-Time) subscription link for V2BOX, Shadowrocket, and v2rayN with auto-refresh
+- **V2BOX Double-Encode Fix** — Special URI encoding to survive V2BOX's double-decode pipeline
 - **High Rate Limit** — Dedicated higher quota (100/min) for subscription syncs
-- **Supabase Persistence** — Atomic storage of subscription nodes via UUID-based links
 - **Structured Logging** — JSON-structured logs via `structlog` (no more silent errors)
 - **Async I/O** — Non-blocking Cloudflare API calls via `httpx`
 
@@ -178,8 +178,9 @@ $$ LANGUAGE plpgsql;
 |--------|------|-------------|
 | `GET` | `/` | Serves the WarpGen web UI |
 | `POST` | `/api/generate` | Generate a WARP config (form data: `mode`, `port`, etc) |
-| `GET` | `/api/v2sub/{sub_id}` | **Dynamic Feed:** Generates & serves fresh Warp config for clients |
+| `GET` | `/api/v2sub/{sub_id}` | **Dynamic Feed:** Generates & serves fresh Warp config for V2BOX |
 | `GET` | `/api/scan?port=500` | Scan for working WARP IPs with latency |
+| `GET` | `/api/health` | Server health check with template directory info |
 
 ### Example: Generate via API
 
@@ -205,6 +206,29 @@ Response:
 ```
 
 ---
+
+## 📱 V2BOX Subscription
+
+WarpGen provides a permanent subscription URL for V2BOX, Shadowrocket, and v2rayN clients.
+
+### How It Works
+
+1. Visit the website and copy your **Subscription URL** from the V2BOX card
+2. In V2BOX, go to **Subscription → Add** and paste the URL
+3. Every time V2BOX syncs/updates, it generates a **brand new WARP identity** automatically
+
+### Important Notes
+
+| Topic | Details |
+|-------|---------|
+| **Auto-Update** | V2BOX auto-updates your config every time you open the app. Each update registers a fresh WARP identity with Cloudflare. |
+| **Disable Auto-Update** | To keep the same config, go to V2BOX: **Settings → Subscription → Turn off "Auto Update"** |
+| **50 GB Data** | This is Cloudflare's free WARP data quota per registration. It auto-refreshes every time V2BOX updates your subscription — effectively unlimited! |
+| **Double-Encoding** | The subscription URI uses double-encoded query parameters (`%252B` instead of `%2B`) to survive V2BOX's double-decode pipeline. This is intentional. |
+
+---
+
+
 
 ## 🌐 Environment Variables
 
