@@ -33,7 +33,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     LIMITS = {
         "/": 15,
         "/api/generate": 15,
-        "/api/scan": 15,
         "/api/v2sub": 100,  # Higher limit for subscription syncs
     }
 

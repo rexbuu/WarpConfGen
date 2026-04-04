@@ -1,6 +1,6 @@
 # 🛡️ WarpGen
 
-Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configurations — with a premium glassmorphism UI, Smart Scan, and Myanmar language support.
+Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configurations — with a premium glassmorphism UI and Myanmar language support.
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-latest-009688?logo=fastapi&logoColor=white)
@@ -12,8 +12,7 @@ Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configuration
 ## ✨ Features
 
 - **Premium Glassmorphism UI** — Warm off-white palette, frosted glass cards, Outfit + DM Mono fonts, micro-animations
-- **4 Endpoint Modes** — Default IPs, From List, Custom IP, Smart Scan
-- **Smart Scan** — Live UDP probing of Cloudflare WARP CIDR ranges with **latency badges** (green/yellow/red)
+- **3 Endpoint Modes** — Default IPs, From List, Custom IP
 - **Bilingual** — English + Myanmar (Burmese) language toggle
 - **Config History** — Last 5 generated configs saved in localStorage for quick retrieval
 - **QR Code Export** — Scan directly with WireGuard mobile app
@@ -26,6 +25,7 @@ Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configuration
 - **High Rate Limit** — Dedicated higher quota (100/min) for subscription syncs
 - **Structured Logging** — JSON-structured logs via `structlog` (no more silent errors)
 - **Async I/O** — Non-blocking Cloudflare API calls via `httpx`
+- **Universal Config** — Generated WireGuard configs work with any WireGuard-supported app (v2rayNG, V2BOX, Amnezia VPN, NekoBox, and more)
 
 ---
 
@@ -37,11 +37,10 @@ WarpGen/
 │   ├── __init__.py              # App factory + structlog config
 │   ├── config.py                # Pydantic Settings (typed, validated)
 │   ├── routes/
-│   │   ├── api.py               # POST /api/generate, GET /api/scan
+│   │   ├── api.py               # POST /api/generate, GET /api/v2sub
 │   │   └── pages.py             # GET / (Jinja2 template)
 │   ├── services/
 │   │   ├── warp.py              # Cloudflare registration (async httpx)
-│   │   ├── scanner.py           # UDP probing with latency measurement
 │   │   ├── stats.py             # Local + Supabase stats tracking
 │   │   └── subscription.py      # JIT v2box subscription management
 │   └── middleware/
@@ -179,7 +178,6 @@ $$ LANGUAGE plpgsql;
 | `GET` | `/` | Serves the WarpGen web UI |
 | `POST` | `/api/generate` | Generate a WARP config (form data: `mode`, `port`, etc) |
 | `GET` | `/api/v2sub/{sub_id}` | **Dynamic Feed:** Generates & serves fresh Warp config for V2BOX |
-| `GET` | `/api/scan?port=500` | Scan for working WARP IPs with latency |
 | `GET` | `/api/health` | Server health check with template directory info |
 
 ### Example: Generate via API
@@ -189,27 +187,13 @@ curl -X POST http://127.0.0.1:8000/api/generate \
   -d "mode=auto&port=500"
 ```
 
-### Example: Scan via API
-
-```bash
-curl http://127.0.0.1:8000/api/scan?port=2408
-```
-
-Response:
-```json
-{
-  "ips": [
-    {"ip": "162.159.192.1", "latency_ms": 45.2},
-    {"ip": "188.114.97.1", "latency_ms": 78.1}
-  ]
-}
-```
-
 ---
 
 ## 📱 V2BOX Subscription
 
 WarpGen provides a permanent subscription URL for V2BOX, Shadowrocket, and v2rayN clients.
+
+> ⚠️ **iOS Notice:** V2BOX Subscription is currently not working on iOS. We are working on a fix and will update soon.
 
 ### How It Works
 
@@ -228,7 +212,18 @@ WarpGen provides a permanent subscription URL for V2BOX, Shadowrocket, and v2ray
 
 ---
 
+## 🔗 Config Compatibility
 
+The generated WireGuard configuration (via **Copy Config** or **Download .conf**) is a standard WireGuard config and works with **any** WireGuard-supported app:
+
+- **WireGuard** (Official) — Android, iOS, Windows, Mac, Linux
+- **v2rayNG** — Android
+- **V2BOX** — Android, iOS
+- **Amnezia VPN** — Android, iOS, Windows, Mac, Linux
+- **NekoBox** — Android
+- And any other app that supports WireGuard protocol
+
+---
 
 ## 🌐 Environment Variables
 

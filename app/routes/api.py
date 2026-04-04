@@ -7,7 +7,6 @@ import structlog
 from fastapi import APIRouter, Form
 
 from app.config import settings
-from app.services.scanner import scan_all_working, smart_scan
 from app.services.stats import increment_stats
 from app.services.warp import generate_warp
 
@@ -18,13 +17,6 @@ router = APIRouter(prefix="/api")
 
 import base64
 from fastapi.responses import PlainTextResponse
-
-@router.get("/scan")
-def api_scan(port: int = 500):
-    """Scan for working WARP endpoint IPs with latency info."""
-    results = scan_all_working(port=port)
-    return {"ips": results}
-
 
 @router.get("/sub", response_class=PlainTextResponse)
 async def api_sub(port: int = 500):
@@ -113,8 +105,6 @@ async def api_generate(
         target_ip = ""
         if mode == "auto":
             target_ip = settings.known_warp_ips[0]
-        elif mode == "smart":
-            target_ip = smart_scan(port=port)
         elif mode == "select":
             target_ip = selected_ip if selected_ip else settings.known_warp_ips[0]
         else:

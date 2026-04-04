@@ -685,14 +685,6 @@
                                     <span data-t="mode-custom">Custom IP</span>
                                 </label>
                             </div>
-                            <div class="radio-item">
-                                <input type="radio" name="mode" id="mode-smart" value="smart" {% if mode=="smart"
-                                    %}checked{% endif %}>
-                                <label for="mode-smart" class="radio-label">
-                                    <i data-lucide="search"></i>
-                                    <span data-t="mode-smart">Smart Scan</span>
-                                </label>
-                            </div>
                         </div>
                     </div>
 
@@ -717,27 +709,6 @@
                         </div>
                     </div>
 
-                    <div id="scanner-box" class="form-group {% if mode != 'smart' %}hidden{% endif %}">
-                        <div class="card" style="background: rgba(255,255,255,0.4); border-style: dashed;">
-                            <p style="text-align:center; font-size:14px; color:var(--text-secondary); margin-bottom:16px;"
-                                data-t="scan-desc">Find working IPs for your region in real-time.</p>
-                            <button type="button" id="startScanBtn" class="btn-outline" style="width:100%;"><i
-                                    data-lucide="search"></i> <span data-t="btn-scan">Start Scanning</span></button>
-
-                            <div id="scanResults" class="hidden" style="margin-top:16px;">
-                                <div id="scanLoading" class="hidden" style="text-align:center; padding:20px;">
-                                    <div
-                                        style="border: 4px solid var(--accent-light); border-top: 4px solid var(--accent); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px;">
-                                    </div>
-                                    <span data-t="scanning">Probing endpoints...</span>
-                                </div>
-                                <div id="scanList"
-                                    style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; padding-right:8px;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label data-t="port">Port</label>
                         <select name="port">
@@ -748,7 +719,7 @@
                         </select>
                     </div>
 
-                    <div id="gen-btn-container" class="{% if mode == 'smart' %}hidden{% endif %}">
+                    <div id="gen-btn-container">
                         <button type="submit" class="btn-primary">
                             <i data-lucide="refresh-cw"></i>
                             <span data-t="btn-generate">Generate Config</span>
@@ -783,7 +754,12 @@
 
                 <button id="refreshSubBtn" class="hidden" onclick="refreshSubscription()"></button>
 
-                <div style="margin-top:16px; padding:14px; background:rgba(232,168,56,0.06); border-radius:12px; border:1px dashed var(--accent-light);">
+                <div style="margin-top:12px; padding:12px 14px; background:rgba(217,79,79,0.08); border-radius:12px; border:1px solid rgba(217,79,79,0.2); display:flex; align-items:start; gap:8px;">
+                    <i data-lucide="alert-triangle" size="16" style="flex-shrink:0; margin-top:2px; color:#b91c1c;"></i>
+                    <span data-t="v2_ios_warning" style="font-size:13px; color:#b91c1c; font-weight:600;">V2BOX Subscription is currently not working on iOS. We are working on a fix and will update soon.</span>
+                </div>
+
+                <div style="margin-top:12px; padding:14px; background:rgba(232,168,56,0.06); border-radius:12px; border:1px dashed var(--accent-light);">
                     <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px 0; display:flex; align-items:start; gap:6px;">
                         <i data-lucide="info" size="15" style="flex-shrink:0; margin-top:2px; color:var(--accent);"></i>
                         <span data-t="v2_note_auto">V2BOX auto-updates your config every time you open the app. Each update generates a brand new WARP identity.</span>
@@ -870,6 +846,10 @@
                             </div>
                         </li>
                     </ul>
+                    <div style="margin-top:12px; padding:12px 14px; background:rgba(76,175,125,0.08); border-radius:12px; border:1px solid rgba(76,175,125,0.2); display:flex; align-items:start; gap:8px;">
+                        <i data-lucide="puzzle" size="16" style="flex-shrink:0; margin-top:2px; color:#059669;"></i>
+                        <span data-t="compat-note" style="font-size:13px; color:var(--text-secondary);">The generated WireGuard config (Copy Config) is compatible with any WireGuard-supported app — including v2rayNG, V2BOX, Amnezia VPN, NekoBox, and more.</span>
+                    </div>
                 </div>
             </section>
         </main>
@@ -904,7 +884,6 @@
                 'gen-count': 'Total Generations:',
                 'ip-mode': 'Endpoint IP Mode',
                 'mode-auto': 'Default IPs',
-                'mode-smart': 'Smart Scan (Live Bypass)',
                 'mode-select': 'From List',
                 'mode-custom': 'Custom IP',
                 'choose-ip': 'Choose available IP',
@@ -928,10 +907,6 @@
                 'f-group': 'Telegram Group',
                 'f-github': 'GitHub',
                 'tip-mm': 'Tip for Myanmar Users: Default IPs are often blocked by ISPs. If you cannot connect, use a scanner tool to find a Working IP and enter it here.',
-                'scan-desc': 'Find working IPs for your region in real-time.',
-                'btn-scan': 'Start Scanning',
-                'scanning': 'Probing endpoints...',
-                'use-ip': 'Use this',
                 'gen-wait': 'Registering Identity with Cloudflare...',
                 'btn-download': 'Download .conf',
                 'btn-copy': 'Copy Config',
@@ -940,7 +915,6 @@
                 'trouble-title': 'Cannot Connect?',
                 'trouble-1': 'Try lowering MTU to 1280 in your WireGuard settings.',
                 'trouble-2': 'Try different ports like 854, 880, or 2408.',
-                'trouble-3': 'If an IP does not work, use the Smart Scan to find another.',
                 'history-title': 'Recent Configs',
                 'history-empty': 'No saved configs yet.',
                 'history-view': 'View',
@@ -952,7 +926,9 @@
                 'v2_syncing': 'Syncing with Cloudflare...',
                 'v2_note_auto': 'V2BOX auto-updates your config every time you open the app. Each update generates a brand new WARP identity.',
                 'v2_note_disable': 'To keep the same config, disable auto-update in V2BOX: Settings → Subscription → Turn off "Auto Update".',
-                'v2_note_data': 'Showing "50 GB" is normal — it\'s Cloudflare\'s free WARP data quota. It auto-refreshes every time V2BOX updates your subscription.'
+                'v2_note_data': 'Showing "50 GB" is normal — it\'s Cloudflare\'s free WARP data quota. It auto-refreshes every time V2BOX updates your subscription.',
+                'v2_ios_warning': 'V2BOX Subscription is currently not working on iOS. We are working on a fix and will update soon.',
+                'compat-note': 'The generated WireGuard config (Copy Config) is compatible with any WireGuard-supported app — including v2rayNG, V2BOX, Amnezia VPN, NekoBox, and more.'
             },
             mm: {
                 'title': 'မြန်ဆန်ပြီး လုံခြုံသော',
@@ -960,7 +936,6 @@
                 'gen-count': 'စုစုပေါင်း ထုတ်ယူမှုအရေအတွက် -',
                 'ip-mode': 'Endpoint IP ရွေးချယ်မှု',
                 'mode-auto': 'မူလ IP များ',
-                'mode-smart': 'Smart Scan (အကောင်းဆုံးရှာရန်)',
                 'mode-select': 'စာရင်းထဲမှရွေးရန်',
                 'mode-custom': 'ကိုယ်တိုင်ရိုက်ရန်',
                 'choose-ip': 'ရရှိနိုင်သော IP ကိုရွေးပါ',
@@ -984,10 +959,6 @@
                 'f-group': 'တယ်လီဂရမ်အုပ်စု',
                 'f-github': 'GitHub',
                 'tip-mm': 'မြန်မာအသုံးပြုသူများအတွက် - ISP များမှ Cloudflare IP များကို ပိတ်ထားလေ့ရှိပါသည်။ အကယ်၍ ချိတ်ဆက်မရပါက Scanner tool ဖြင့် အလုပ်လုပ်သော IP ကိုရှာပြီး ဤနေရာတွင် ထည့်သွင်းပါ။',
-                'scan-desc': 'အလုပ်လုပ်သည့် IP များကို တိုက်ရိုက်ရှာဖွေပါ။',
-                'btn-scan': 'စတင်ရှာဖွေမည်',
-                'scanning': 'စစ်ဆေးနေပါသည်...',
-                'use-ip': 'အသုံးပြုမည်',
                 'gen-wait': 'Cloudflare တွင် မှတ်ပုံတင်နေပါသည်...',
                 'btn-download': '.conf ဖိုင်ဒေါင်းမည်',
                 'btn-copy': 'Config ကူးယူမည်',
@@ -996,7 +967,6 @@
                 'trouble-title': 'ချိတ်ဆက်မရဖြစ်နေပါသလား?',
                 'trouble-1': 'WireGuard setting တွင် MTU ကို 1280 သို့ပြောင်းလဲကြည့်ပါ။',
                 'trouble-2': 'Port နံပါတ်ကို 854, 880 သို့မဟုတ် 2408 ပြောင်းသုံးကြည့်ပါ။',
-                'trouble-3': 'IP တစ်ခုအဆင်မပြေပါက Smart Scan ဖြင့် နောက်တစ်ခု ထပ်ရှာပါ။',
                 'history-title': 'မကြာသေးမီ Config များ',
                 'history-empty': 'သိမ်းထားသော config မရှိသေးပါ။',
                 'history-view': 'ကြည့်ရှုရန်',
@@ -1008,7 +978,9 @@
                 'v2_syncing': 'Cloudflare တွင် အသစ်လဲနေပါသည်...',
                 'v2_note_auto': 'V2BOX သည် App ဖွင့်တိုင်း config ကို အလိုအလျောက် အသစ်လဲပေးပါသည်။ Update တိုင်း WARP identity အသစ်တစ်ခု ထုတ်ပေးပါသည်။',
                 'v2_note_disable': 'Config ကို ပြောင်းမလဲချင်ပါက V2BOX ထဲတွင် ပိတ်ထားနိုင်ပါသည်: Settings → Subscription → "Auto Update" ကို ပိတ်ပါ။',
-                'v2_note_data': '"50 GB" ပြနေတာ ပုံမှန်ပါ — Cloudflare ရဲ့ အခမဲ့ WARP data ပမာဏ ဖြစ်ပါတယ်။ V2BOX က subscription update လုပ်တိုင်း data အသစ် အလိုအလျောက် ပြန်ဖြည့်ပေးပါသည်။'
+                'v2_note_data': '"50 GB" ပြနေတာ ပုံမှန်ပါ — Cloudflare ရဲ့ အခမဲ့ WARP data ပမာဏ ဖြစ်ပါတယ်။ V2BOX က subscription update လုပ်တိုင်း data အသစ် အလိုအလျောက် ပြန်ဖြည့်ပေးပါသည်။',
+                'v2_ios_warning': 'V2BOX Subscription သည် iOS တွင် လောလောဆယ် အလုပ်မလုပ်ပါ။ ပြင်ဆင်နေပြီး မကြာမီ update လုပ်ပေးပါမည်။',
+                'compat-note': 'ထုတ်ယူထားသော WireGuard config (Copy Config) ကို WireGuard ပံ့ပိုးသော မည်သည့် app တွင်မဆို အသုံးပြုနိုင်ပါသည် — v2rayNG, V2BOX, Amnezia VPN, NekoBox စသည်တို့ အပါအဝင်။'
             }
         };
 
@@ -1040,74 +1012,6 @@
                 document.getElementById('gen-btn-container').classList.toggle('hidden', val === 'smart');
             });
         });
-
-        // Smart Scanner Logic (with latency)
-        const startScanBtn = document.getElementById('startScanBtn');
-        const scanResults = document.getElementById('scanResults');
-        const scanLoading = document.getElementById('scanLoading');
-        const scanList = document.getElementById('scanList');
-
-        startScanBtn.addEventListener('click', async function () {
-            scanResults.classList.remove('hidden');
-            scanLoading.classList.remove('hidden');
-            scanList.innerHTML = '';
-            startScanBtn.disabled = true;
-
-            try {
-                const port = document.querySelector('select[name="port"]').value;
-                const response = await fetch(`/api/scan?port=${port}`);
-                const data = await response.json();
-
-                scanLoading.classList.add('hidden');
-
-                if (data.ips && data.ips.length > 0) {
-                    const lang = localStorage.getItem('pref_lang') || 'en';
-                    data.ips.forEach(function (result) {
-                        const ip = result.ip;
-                        const latency = result.latency_ms;
-
-                        let latencyClass = 'latency-fast';
-                        if (latency > 300) latencyClass = 'latency-slow';
-                        else if (latency > 100) latencyClass = 'latency-medium';
-
-                        const item = document.createElement('div');
-                        item.className = 'card';
-                        item.style.padding = '12px';
-                        item.style.marginBottom = '8px';
-                        item.style.display = 'flex';
-                        item.style.justifyContent = 'space-between';
-                        item.style.alignItems = 'center';
-                        item.style.fontSize = '14px';
-
-                        item.innerHTML = `
-                            <span>
-                                <i data-lucide="check-circle" size="14" style="color:#059669; vertical-align:middle;"></i>
-                                ${ip}
-                                <span class="latency-badge ${latencyClass}">${latency}ms</span>
-                            </span>
-                            <div style="display:flex; gap:8px;">
-                                <button type="button" class="btn-outline" style="height: 32px; padding: 0 12px; font-size: 12px; font-weight: 600; margin: 0; display: flex; align-items: center; justify-content: center;" onclick="navigator.clipboard.writeText('${ip}'); showToast('Copied!')">Copy</button>
-                                <button type="button" class="btn-primary" style="height: 32px; padding: 0 12px; font-size: 12px; font-weight: 600; margin: 0; width: auto; box-shadow: none;" onclick="useIP('${ip}')" data-t="use-ip">${translations[lang]['use-ip']}</button>
-                            </div>
-                        `;
-                        scanList.appendChild(item);
-                    });
-                    lucide.createIcons();
-                } else {
-                    scanList.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">No working IPs found. Try again.</p>';
-                }
-            } catch (err) {
-                scanList.innerHTML = '<p style="text-align:center; color:#b91c1c;">Error scanning: ' + err.message + '</p>';
-            } finally {
-                startScanBtn.disabled = false;
-            }
-        });
-
-        function useIP(ip) {
-            document.getElementById('custom_ip_input').value = ip;
-            document.getElementById('mode-custom').click();
-            document.getElementById('custom-box').scrollIntoView({ behavior: 'smooth' });
-        }
 
         // Copy Toast
         function showToast(msg) {
@@ -1160,11 +1064,11 @@
                             <pre>${item.conf}</pre>
                         </div>
                         <div class="btn-group" style="margin-top:16px;">
-                            <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(item.conf)}" download="warp-saved-${index}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
+                            <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(item.conf)}" download="warp-saved-${index}.conf" class="btn-primary" style="padding:12px 32px; margin:0; width:auto;">
                                 <i data-lucide="download"></i> <span data-t="btn-download">${translations[lang]['btn-download']}</span>
                             </a>
-                            <button class="btn-outline" onclick="navigator.clipboard.writeText(${JSON.stringify(item.conf)}); showToast('${translations[lang]['copied']}')">
-                                <i data-lucide="copy" size="16"></i> <span data-t="btn-copy">${translations[lang]['btn-copy']}</span>
+                            <button class="btn-outline" data-conf="${encodeURIComponent(item.conf)}" onclick="navigator.clipboard.writeText(decodeURIComponent(this.getAttribute('data-conf'))); showToast('${translations[lang]['copied']}')" style="padding:12px 32px; font-size:18px; display:flex; align-items:center; gap:10px; font-weight:700;">
+                                <i data-lucide="copy"></i> <span data-t="btn-copy">${translations[lang]['btn-copy']}</span>
                             </button>
                         </div>
                     </div>
@@ -1315,11 +1219,11 @@
                             <img src="data:image/png;base64,${data.qr}" alt="QR Config">
                         </div>
                         <div class="btn-group">
-                            <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(data.conf)}" download="warp-${Math.floor(Date.now() / 1000)}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
+                            <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(data.conf)}" download="warp-${Math.floor(Date.now() / 1000)}.conf" class="btn-primary" style="padding:12px 32px; margin:0; width:auto;">
                                 <i data-lucide="download"></i> <span data-t="btn-download">${translations[currentLang]['btn-download']}</span>
                             </a>
-                            <button class="btn-outline" onclick="navigator.clipboard.writeText(${JSON.stringify(data.conf)}); showToast('${translations[currentLang]['copied']}')">
-                                <i data-lucide="copy" size="16"></i> <span data-t="btn-copy">${translations[currentLang]['btn-copy']}</span>
+                            <button class="btn-outline" data-conf="${encodeURIComponent(data.conf)}" onclick="navigator.clipboard.writeText(decodeURIComponent(this.getAttribute('data-conf'))); showToast('${translations[currentLang]['copied']}')" style="padding:12px 32px; font-size:18px; display:flex; align-items:center; gap:10px; font-weight:700;">
+                                <i data-lucide="copy"></i> <span data-t="btn-copy">${translations[currentLang]['btn-copy']}</span>
                             </button>
                         </div>
 
@@ -1369,11 +1273,11 @@
                                 <img src="data:image/png;base64,${data.qr}" alt="QR Config">
                             </div>
                             <div class="btn-group">
-                                <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(data.conf)}" download="warp-${Math.floor(Date.now() / 1000)}.conf" class="btn-primary" style="padding:12px 32px; width:auto;">
+                                <a href="data:application/octet-stream;charset=utf-8,${encodeURIComponent(data.conf)}" download="warp-${Math.floor(Date.now() / 1000)}.conf" class="btn-primary" style="padding:12px 32px; margin:0; width:auto;">
                                     <i data-lucide="download"></i> <span data-t="btn-download">${translations[currentLang]['btn-download']}</span>
                                 </a>
-                                <button class="btn-outline" onclick="navigator.clipboard.writeText(${JSON.stringify(data.conf)}); showToast('${translations[currentLang]['copied']}')">
-                                    <i data-lucide="copy" size="16"></i> <span data-t="btn-copy">${translations[currentLang]['btn-copy']}</span>
+                                <button class="btn-outline" data-conf="${encodeURIComponent(data.conf)}" onclick="navigator.clipboard.writeText(decodeURIComponent(this.getAttribute('data-conf'))); showToast('${translations[currentLang]['copied']}')" style="padding:12px 32px; font-size:18px; display:flex; align-items:center; gap:10px; font-weight:700;">
+                                    <i data-lucide="copy"></i> <span data-t="btn-copy">${translations[currentLang]['btn-copy']}</span>
                                 </button>
                             </div>
 
@@ -1386,7 +1290,6 @@
                                 <ul style="text-align:left; font-size:13px; color:var(--text-secondary); padding-left:20px; line-height:1.6;">
                                     <li data-t="trouble-1">${translations[currentLang]['trouble-1']}</li>
                                     <li data-t="trouble-2">${translations[currentLang]['trouble-2']}</li>
-                                    <li data-t="trouble-3">${translations[currentLang]['trouble-3']}</li>
                                 </ul>
                             </div>
                         </div>
