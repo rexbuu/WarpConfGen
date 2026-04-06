@@ -40,6 +40,7 @@ async def index(request: Request):
     display_count = supabase_count if supabase_count is not None else local_count
 
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
             "request": request,
