@@ -26,6 +26,8 @@ Modern FastAPI web app to generate Cloudflare WARP (WireGuard) VPN configuration
 - **Structured Logging** — JSON-structured logs via `structlog` (no more silent errors)
 - **Async I/O** — Non-blocking Cloudflare API calls via `httpx`
 - **Universal Config** — Generated WireGuard configs work with any WireGuard-supported app (v2rayNG, V2BOX, Amnezia VPN, NekoBox, and more)
+- **Telegram Bot** — Generate configs directly via Telegram with [@warpgen_robot](https://t.me/warpgen_robot) (Bilingual EN/MY)
+
 
 ---
 
@@ -38,6 +40,7 @@ WarpGen/
 │   ├── config.py                # Pydantic Settings (typed, validated)
 │   ├── routes/
 │   │   ├── api.py               # POST /api/generate, GET /api/v2sub
+│   │   ├── bot.py               # POST /api/bot (Telegram Webhook)
 │   │   └── pages.py             # GET / (Jinja2 template)
 │   ├── services/
 │   │   ├── warp.py              # Cloudflare registration (async httpx)
@@ -115,6 +118,8 @@ In **Vercel Dashboard → Project Settings → Environment Variables**, add:
 |----------|-------------|
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_KEY` | Your Supabase anon/public key |
+| `TELEGRAM_BOT_TOKEN` | Your Telegram Bot Token from @BotFather |
+| `APP_URL` | Your production Vercel URL (e.g. `https://warpgen.vercel.app`) |
 
 ---
 
@@ -178,6 +183,8 @@ $$ LANGUAGE plpgsql;
 | `GET` | `/` | Serves the WarpGen web UI |
 | `POST` | `/api/generate` | Generate a WARP config (form data: `mode`, `port`, etc) |
 | `GET` | `/api/v2sub/{sub_id}` | **Dynamic Feed:** Generates & serves fresh Warp config for V2BOX |
+| `POST` | `/api/bot` | Telegram Webhook handler |
+| `GET` | `/api/bot/setup` | One-time Webhook registration |
 | `GET` | `/api/health` | Server health check with template directory info |
 
 ### Example: Generate via API
@@ -186,6 +193,19 @@ $$ LANGUAGE plpgsql;
 curl -X POST http://127.0.0.1:8000/api/generate \
   -d "mode=auto&port=500"
 ```
+
+---
+
+## 🤖 Telegram Bot
+
+WarpGen includes a lightweight Telegram bot integration for on-the-go config generation.
+
+### Setup Instructions
+
+1. **Get a Token:** Message [@BotFather](https://t.me/BotFather) to create a bot and get your token.
+2. **Set Env Vars:** Add `TELEGRAM_BOT_TOKEN` and `APP_URL` to your Vercel project environment variables.
+3. **Register Webhook:** After deployment, visit `https://your-domain.vercel.app/api/bot/setup` in your browser.
+4. **Start Chatting:** Open your bot on Telegram and send `/start`.
 
 ---
 
