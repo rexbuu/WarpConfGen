@@ -33,18 +33,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     LIMITS = {
         "/": 15,
         "/api/generate": 15,
-        "/api/v2sub": 100,  # Higher limit for subscription syncs
+        "/api/v2sub": 100,   # Higher limit for subscription syncs
+        "/api/bot": 200,     # Telegram webhook (requests from TG servers)
     }
 
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
         path = request.url.path
         
-        # Check for exact match or prefix for /api/v2sub
+        # Check for exact match or prefix for /api/v2sub and /api/bot
         target_path = None
         if path in self.LIMITS:
             target_path = path
         elif path.startswith("/api/v2sub/"):
             target_path = "/api/v2sub"
+        elif path.startswith("/api/bot/"):
+            target_path = "/api/bot"
 
         if not target_path:
             return await call_next(request)

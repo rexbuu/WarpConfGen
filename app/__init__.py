@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.routes.api import router as api_router
+from app.routes.bot import router as bot_router
 from app.routes.pages import router as pages_router, TEMPLATE_DIR
 
 structlog.configure(
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
 
     application.add_middleware(RateLimitMiddleware)
     application.include_router(api_router)
+    application.include_router(bot_router)
     application.include_router(pages_router)
     return application
 

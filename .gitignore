@@ -34,4 +34,7 @@ warp-*.png
 warpgen_stats.json
 local_tools/*
 
+# Agent workflows
+.agents/
+
 
