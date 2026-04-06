@@ -292,6 +292,13 @@ async def telegram_webhook(request: Request) -> JSONResponse:
     if not settings.telegram_bot_token:
         return JSONResponse({"error": "Bot token not configured"}, status_code=503)
 
+    # Optional: Verify Telegram Secret Token (X-Telegram-Bot-Api-Secret-Token) if configured
+    if settings.admin_secret:
+        token = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
+        if token != settings.admin_secret:
+            logger.warning("bot_unauthorized_access", token=token)
+            return JSONResponse({"error": "Unauthorized Access (Secret Missing/Wrong)"}, status_code=403)
+
     try:
         update = await request.json()
         logger.info("bot_update", update_id=update.get("update_id"))
@@ -353,23 +360,31 @@ async def telegram_webhook(request: Request) -> JSONResponse:
 
 
 @router.get("/setup")
-async def setup_webhook() -> dict:
+async def setup_webhook(key: str = "") -> dict:
     """One-time: register the webhook URL + bot commands with Telegram."""
     if not settings.telegram_bot_token:
         return {"error": "TELEGRAM_BOT_TOKEN not set in .env"}
     if not settings.app_url:
         return {"error": "APP_URL not set in .env"}
 
+    # Protection: /setup?key=YOUR_ADMIN_SECRET
+    if settings.admin_secret and key != settings.admin_secret:
+        return {"error": "Unauthorized Access (Key Missing/Wrong)"}
+
     webhook_url = f"{settings.app_url.rstrip('/')}/api/bot"
 
     async with httpx.AsyncClient() as client:
-        # Register webhook
+        # Register webhook with secret_token for header validation
+        payload = {
+            "url": webhook_url,
+            "allowed_updates": ["message", "callback_query"],
+        }
+        if settings.admin_secret:
+            payload["secret_token"] = settings.admin_secret
+
         resp = await client.post(
             _api_url("setWebhook"),
-            json={
-                "url": webhook_url,
-                "allowed_updates": ["message", "callback_query"],
-            },
+            json=payload,
             timeout=10.0,
         )
         webhook_result = resp.json()

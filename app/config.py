@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     stats_file: str = "warpgen_stats.json"
     telegram_bot_token: str = ""
     app_url: str = ""
+    admin_secret: str = ""
     rate_limit_window_seconds: int = 60
     rate_limit_max_requests: int = 15
     peer_public_key: str = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
